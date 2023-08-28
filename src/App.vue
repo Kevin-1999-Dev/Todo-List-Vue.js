@@ -19,7 +19,7 @@
               v-model="hideComplete"
             />
           </div>
-          <button class="btn btn-danger d-block mt-2">
+          <button class="btn btn-danger d-block mt-2" @click="deleteComplete()">
             Delete Complete Tasks
           </button>
         </div>
@@ -28,13 +28,20 @@
         <div class="col-6 fs-2 fw-bold">Tasks</div>
         <div class="col-6 fs-2 fw-bold">Done</div>
       </div>
-      <div class="row" v-for="(task, index) in filterTask" :key="index">
+      <div v-if="this.filterTask.length > 0">
+        <div class="row" v-for="(task, index) in filterTask" :key="index">
         <div class="col-6" :class="task.done ? 'deleteTask' : ''">
           {{ task.action }}
         </div>
         <div class="col-6">
-          <input type="checkbox" v-model="task.done" id="" />
+          <input type="checkbox" v-model="task.done" />
         </div>
+      </div>
+      </div>
+      <div v-else>
+        <h3 class="alert alert-warning w-50 text-center">
+          There is no Tasks
+        </h3>
       </div>
       <hr />
       <div class="row">
@@ -75,24 +82,31 @@ export default {
   },
 
   methods: {
+    storage() {
+      localStorage.setItem("Storage", JSON.stringify(this.tasks));
+    },
     addTask() {
       if(this.createTask == null || this.createTask == '' ){
         this.valiMessage = true;
       }else{
         this.tasks.push({
-        action: this.createTask,
-        done: false,
-      });
-      localStorage.setItem("myStorage", JSON.stringify(this.tasks));
-
+          action: this.createTask,
+          done: false
+        });
+      
+        this.storage();
       this.createTask = '';
       this.valiMessage = false;
       }
       
     },
+    deleteComplete() {
+      this.tasks = this.tasks.filter((v) => !v.done);
+      this.storage();
+    },
   },
   mounted() {
-    let data = localStorage.getItem("myStorage");
+    let data = localStorage.getItem("Storage");
     if (data != null) {
       this.tasks = JSON.parse(data);
     }
